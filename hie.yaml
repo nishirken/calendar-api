@@ -2,3 +2,15 @@ cradle:
   cabal:
     - path: "app/Main.hs"
       component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Config.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Auth.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Db/Users.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Db/Connection.hs"
+      component: "calendar-api:exe:calendar-api"

@@ -1,0 +1,4 @@
+User
+    email String
+    password String
+    deriving Show

@@ -1,2 +1,6 @@
 dist-newstyle
 .direnv
+.tmp
+logs
+*.lock
+beam-*

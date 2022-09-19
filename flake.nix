@@ -27,7 +27,12 @@
                   haskellPackages.implicit-hie
                   haskellPackages.servant
                   zlib
+                  postgresql_14
                 ];
+                shellHook = ''
+                  export PGDIR=".tmp/calendardb"
+                  [ ! -d $PGDIR ] && pg_ctl initdb -D $PGDIR
+                '';
                 withHoogle = true;
               };
             };

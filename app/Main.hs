@@ -1,48 +1,35 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Main where
 
-import Data.Aeson
-import Data.Text
-import Data.Time (UTCTime (..), fromGregorian)
 import GHC.Generics
 import Network.Wai.Handler.Warp (Port, run)
 import Servant
 import Servant.API
+import Config (config, Config (..))
+import Database.PostgreSQL.Simple (Connection)
+import Db.Connection (initDb)
+import Controllers.User
 
-type UserAPI = "users" :> Get '[JSON] [User]
+type API = UserAPI
 
-data User = User
-  { name :: String,
-    age :: Int,
-    email :: String,
-    registration_date :: UTCTime
-  }
-  deriving (Eq, Show, Generic)
+server :: Config -> Connection -> Server API
+server config connection = getUser config connection
 
-instance ToJSON User
+api :: Proxy API
+api = Proxy
 
-users :: [User]
-users =
-  [ User "Isaac Newton" 372 "isaac@newton.co.uk" (UTCTime (fromGregorian 1683 3 1) 0),
-    User "Albert Einstein" 136 "ae@mc2.org" (UTCTime (fromGregorian 1905 12 1) 0)
-  ]
-
-server :: Server UserAPI
-server = pure users
-
-userAPI :: Proxy UserAPI
-userAPI = Proxy
-
-app :: Application
-app = serve userAPI server
-
-port :: Port
-port = 8081
+app :: Connection -> Application
+app connection = serve api $ server config connection
 
 main :: IO ()
 main = do
+  let port = appPort config
   print $ "Starting server at " ++ show port
-  run port app
+  connection <- initDb config
+  run (fromIntegral port) $ app connection
