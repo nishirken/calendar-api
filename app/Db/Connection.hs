@@ -2,8 +2,8 @@
 
 module Db.Connection where
 
-import Database.Beam.Postgres
 import Config
+import Database.Beam.Postgres
 
-initDb:: Config -> IO Connection
-initDb Config{..} = connect $ ConnectInfo dbHost dbPort dbUser "" dbName 
+initDb :: Config -> IO Connection
+initDb Config {..} = connect $ ConnectInfo dbHost dbPort dbUser "" dbName

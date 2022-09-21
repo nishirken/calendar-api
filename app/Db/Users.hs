@@ -1,40 +1,43 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Db.Users where
 
-import Database.Beam
-import Database.Beam.Postgres
-import Database.Beam.Backend.SQL.Types (SqlSerial)
-import Data.Text (Text, unpack)
+import Data.Functor.Identity (Identity (Identity))
 import Data.Int (Int32)
-import Data.Functor.Identity (Identity(Identity))
-import Data.Password.Bcrypt (PasswordHash(..), Bcrypt)
-import Database.Beam.Backend (autoSqlValueSyntax, HasSqlValueSyntax (sqlValueSyntax))
-import Database.Beam.Backend.SQL.AST (Value(Value))
+import Data.Password.Bcrypt (Bcrypt, PasswordHash (..))
+import Data.Text (Text, unpack)
+import Database.Beam
+import Database.Beam.Backend (HasSqlValueSyntax (sqlValueSyntax), autoSqlValueSyntax)
+import Database.Beam.Backend.SQL.AST (Value (Value))
+import Database.Beam.Backend.SQL.Types (SqlSerial)
+import Database.Beam.Postgres
 
-data UserT f
-    = User
-    { _userId :: Columnar f (SqlSerial Int32)
-    , _userEmail     :: Columnar f Text
-    , _userPassword  :: Columnar f UserPassword }
-    deriving Generic
+data UserT f = User
+  { _userId :: Columnar f (SqlSerial Int32),
+    _userEmail :: Columnar f Text,
+    _userPassword :: Columnar f UserPassword
+  }
+  deriving (Generic)
 
 type User = UserT Identity
+
 type UserId = PrimaryKey UserT Identity
+
 type UserPassword = PasswordHash Bcrypt
 
 deriving instance Show User
+
 deriving instance Eq User
 
 instance Beamable UserT
@@ -46,6 +49,5 @@ instance FromBackendRow Postgres UserPassword where
   fromBackendRow = PasswordHash <$> fromBackendRow
 
 instance Table UserT where
-   data PrimaryKey UserT f = UserId (Columnar f (SqlSerial Int32)) deriving (Generic, Beamable)
-   primaryKey = UserId . _userId
-
+  data PrimaryKey UserT f = UserId (Columnar f (SqlSerial Int32)) deriving (Generic, Beamable)
+  primaryKey = UserId . _userId

@@ -1,29 +1,29 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Controllers.User where
 
+import Config (Config)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Data.Aeson (ToJSON)
+import Data.Int (Int32)
+import Data.Text (Text, unpack)
+import Database.Beam.Backend (SqlSerial (unSerial))
+import Database.PostgreSQL.Simple (Connection)
 import qualified Db
 import GHC.Generics
 import Servant
 import Servant.API
-import Data.Int (Int32)
-import Data.Text (Text, unpack)
-import Data.Aeson (ToJSON)
-import Config (Config)
-import Database.PostgreSQL.Simple (Connection)
-import Control.Monad.IO.Class (MonadIO(liftIO))
-import Database.Beam.Backend (SqlSerial(unSerial))
 
 type UserAPI = "user" :> Capture "id" Int32 :> Get '[JSON] UserResponse
 
 data UserResponse = UserResponse
-  { id :: Int32
-  , email :: Text
+  { id :: Int32,
+    email :: Text
   }
   deriving (Eq, Show, Generic)
 
@@ -35,4 +35,3 @@ getUser config connection userId = do
   case user of
     Just user' -> pure $ UserResponse (unSerial . Db._userId $ user') (Db._userEmail user')
     Nothing -> throwError $ err404
-
