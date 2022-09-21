@@ -14,3 +14,18 @@ cradle:
 
     - path: "app/Db/Connection.hs"
       component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Db.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Controllers/User.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Controllers/Auth.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Controllers/Auth/Signup.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Controllers/Auth/Password.hs"
+      component: "calendar-api:exe:calendar-api"

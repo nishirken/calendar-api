@@ -10,11 +10,13 @@ executable calendar-api
     hs-source-dirs:   app
     other-modules:
         Config
-        Auth
         Db.Users
         Db.Connection
         Db
         Controllers.User
+        Controllers.Auth
+        Controllers.Auth.Signup
+        Controllers.Auth.Password
 
     default-language: Haskell2010
     build-depends:
@@ -30,4 +32,10 @@ executable calendar-api
         beam-core,
         beam-postgres,
         beam-migrate,
-        string-interpolate
+        string-interpolate,
+        password,
+        utf8-string,
+        containers,
+        email-validate,
+        http-types,
+        uuid-types
