@@ -19,7 +19,7 @@ import GHC.Generics
 import Servant
 import Servant.API
 
-type UserAPI = "user" :> Capture "id" Int32 :> Get '[JSON] UserResponse
+type UserAPI = "user" :> Get '[JSON] UserResponse
 
 data UserResponse = UserResponse
   { id :: Int32,

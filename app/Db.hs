@@ -14,6 +14,7 @@ module Db
   ( CalendarDb (..),
     UserT (..),
     User,
+    getUserId,
     initDb,
     getUserById,
     getUserByEmail,

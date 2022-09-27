@@ -7,7 +7,8 @@ data Config = Config
     dbPort :: Word16,
     dbHost :: String,
     dbUser :: String,
-    dbName :: String
+    dbName :: String,
+    authKey :: String
   }
   deriving (Eq, Show)
 
@@ -18,5 +19,6 @@ config =
       dbPort = 5555,
       dbHost = "localhost",
       dbUser = "postgres",
-      dbName = "calendar"
+      dbName = "calendar",
+      authKey = "secret"
     }

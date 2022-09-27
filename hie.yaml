@@ -6,9 +6,6 @@ cradle:
     - path: "app/Config.hs"
       component: "calendar-api:exe:calendar-api"
 
-    - path: "app/Auth.hs"
-      component: "calendar-api:exe:calendar-api"
-
     - path: "app/Db/Users.hs"
       component: "calendar-api:exe:calendar-api"
 
@@ -28,4 +25,16 @@ cradle:
       component: "calendar-api:exe:calendar-api"
 
     - path: "app/Controllers/Auth/Password.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Controllers/Auth/Signin.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Controllers/Auth/JWT.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/DefaultModuleName.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Controllers/Auth/AuthCheck.hs"
       component: "calendar-api:exe:calendar-api"

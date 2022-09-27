@@ -18,7 +18,7 @@ import Data.Int (Int32)
 import Data.Password.Bcrypt (Bcrypt, PasswordHash (..))
 import Data.Text (Text, unpack)
 import Database.Beam
-import Database.Beam.Backend (HasSqlValueSyntax (sqlValueSyntax), autoSqlValueSyntax)
+import Database.Beam.Backend (HasSqlValueSyntax (sqlValueSyntax), SqlSerial (unSerial), autoSqlValueSyntax)
 import Database.Beam.Backend.SQL.AST (Value (Value))
 import Database.Beam.Backend.SQL.Types (SqlSerial)
 import Database.Beam.Postgres
@@ -51,3 +51,6 @@ instance FromBackendRow Postgres UserPassword where
 instance Table UserT where
   data PrimaryKey UserT f = UserId (Columnar f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = UserId . _userId
+
+getUserId :: User -> Int32
+getUserId user = unSerial $ _userId user

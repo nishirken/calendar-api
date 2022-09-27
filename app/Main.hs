@@ -5,14 +5,14 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Main where
 
 import Config (Config (..), config)
 import Control.Exception (SomeException (SomeException), catches, try)
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Controllers.Auth (AuthAPI, auth)
-import Controllers.User (UserAPI, getUser)
+import Controllers
 import Data.ByteString.Lazy.UTF8 (fromString)
 import Database.PostgreSQL.Simple (Connection)
 import Db.Connection (initDb)
@@ -23,18 +23,11 @@ import qualified Network.Wai.Handler.Warp as Warp
 import Servant
 import Servant.API
 
-type API = UserAPI :<|> AuthAPI
-
-server :: Config -> Connection -> Server API
-server config connection =
-  getUser config connection
-    :<|> auth config connection
-
-api :: Proxy API
-api = Proxy
+api' :: Proxy API
+api' = Proxy
 
 app :: Connection -> Wai.Application
-app connection = serve api $ server config connection
+app connection = serveWithContext api' (genAuthServerContext config) $ api config connection
 
 main :: IO ()
 main = do
