@@ -43,5 +43,6 @@
     in flake // {
       # Built by `nix build .`
       defaultPackage = flake.packages."${packageName}:exe:${packageName}";
+      inherit pkgs;
     });
 }

@@ -10,6 +10,7 @@
 module Main where
 
 import Config (Config (..), config)
+import Control.Concurrent (threadDelay)
 import Control.Exception (SomeException (SomeException), catches, try)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Controllers
@@ -31,6 +32,7 @@ app connection = serveWithContext api' (genAuthServerContext config) $ api confi
 
 main :: IO ()
 main = do
+  --  threadDelay $ 1000000 * 3600
   let port = appPort config
   print $ "Starting server at " ++ show port
   connection <- initDb config

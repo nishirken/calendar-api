@@ -1,0 +1,16 @@
+version: "3.9"
+services: 
+  webapp: 
+    image: registry.gitlab.com/nishirken/calendar-api:${TAG}
+    ports:
+      - 8081:8081
+    depends_on:
+      - postgres
+
+  postgres:
+    image: docker.io/library/postgres:14
+    expose:
+      - "5555"
+    env_file: .env
+    command:
+      - "-p 5555"

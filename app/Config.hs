@@ -17,7 +17,7 @@ config =
   Config
     { appPort = 8081,
       dbPort = 5555,
-      dbHost = "localhost",
+      dbHost = "postgres",
       dbUser = "postgres",
       dbName = "calendar",
       authKey = "secret"
