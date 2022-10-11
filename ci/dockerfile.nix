@@ -7,7 +7,7 @@ in pkgs.dockerTools.buildImage {
   fromImageTag = "latest";
   copyToRoot = pkgs.buildEnv {
     name = "image-root";
-    paths = [ pkgs.defaultPackage ];
+    paths = [ pkgs.defaultPackage pkgs.bash ];
     pathsToLink = [ "/bin" ];
   };
   config = {
