@@ -25,7 +25,6 @@
                 };
                 buildInputs = with pkgs; [
                   haskellPackages.implicit-hie
-                  haskellPackages.servant
                   zlib
                   postgresql_14
                 ];

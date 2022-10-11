@@ -32,7 +32,6 @@ app connection = serveWithContext api' (genAuthServerContext config) $ api confi
 
 main :: IO ()
 main = do
-  --  threadDelay $ 1000000 * 3600
   let port = appPort config
   print $ "Starting server at " ++ show port
   connection <- initDb config
