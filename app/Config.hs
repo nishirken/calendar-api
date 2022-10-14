@@ -1,6 +1,11 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Config where
 
 import Data.Word (Word16)
+import Data.Aeson (FromJSON, fromJSON, decodeFileStrict')
+import GHC.Generics (Generic)
 
 data Config = Config
   { appPort :: Word16,
@@ -10,15 +15,11 @@ data Config = Config
     dbName :: String,
     authKey :: String
   }
-  deriving (Eq, Show)
+  deriving (Eq, Show, FromJSON, Generic)
 
-config :: Config
-config =
-  Config
-    { appPort = 8081,
-      dbPort = 5555,
-      dbHost = "postgres",
-      dbUser = "postgres",
-      dbName = "calendar",
-      authKey = "secret"
-    }
+getConfig :: IO Config
+getConfig = do
+  res <- (decodeFileStrict' "config.json" :: IO (Maybe Config))
+  case res of
+    (Just config) -> pure config
+    Nothing -> error "Failed to decode config"

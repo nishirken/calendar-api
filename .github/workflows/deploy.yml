@@ -59,11 +59,27 @@ jobs:
         run: |
           $(nix-build ci/dockerfile.nix) | podman load
           podman push localhost/webapp:${TAG} registry.gitlab.com/nishirken/calendar-api:${TAG}
+
+      - name: "Gen env"
+        env:
+          KEY: ${{ secrets.AUTH_KEY }}
+          CMD: >
+            mkdir -p /var/calendar-api;
+            cd /var/calendar-api;
+            touch .env;
+            echo "POSTGRES_PASSWORD=$(cat config.json | jq '.dbPassword')" > .env;
+            echo "POSTGRES_USER=$(cat config.json | jq '.dbUser')" >> .env;
+            echo "POSTGRES_DB=$(cat config.json | jq '.dbName')" >> .env;
+            cat config.json | jq '.appKey |= "$KEY"'
+
+        run: ssh -i ~/.ssh/gandi_key $USERNAME@$HOST $CMD
  
       - name: "Start image"
+        env:
+          CMD: <
+            podman login registry.gitlab.com/nishirken/calendar-api --username nishirken --password ${{ secrets.GANDI_PODMAN_TOKEN }};
+            TAG=$TAG podman-compose -f /var/calendar-api/docker-compose.yaml up -d --force-recreate
         run: |
-          ssh -i ~/.ssh/gandi_key $USERNAME@$HOST mkdir -p /var/calendar-api
           scp -i ~/.ssh/gandi_key ci/docker-compose.yaml $USERNAME@$HOST:/var/calendar-api/docker-compose.yaml
-          ssh -i ~/.ssh/gandi_key $USERNAME@$HOST podman login registry.gitlab.com/nishirken/calendar-api --username nishirken --password ${{ secrets.GANDI_PODMAN_TOKEN }}
-          ssh -i ~/.ssh/gandi_key $USERNAME@$HOST TAG=$TAG podman-compose -f /var/calendar-api/docker-compose.yaml up -d --force-recreate
-
+          ssh -i ~/.ssh/gandi_key $USERNAME@$HOST $CMD
+          ssh -i ~/.ssh/gandi_key $USERNAME@$HOST 

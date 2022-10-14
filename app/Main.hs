@@ -7,7 +7,7 @@
 
 module Main where
 
-import Config (Config (..), config)
+import Config (Config (..), getConfig)
 import Control.Concurrent (threadDelay)
 import Control.Exception (SomeException (SomeException), catches, try)
 import Control.Monad.IO.Class (MonadIO (liftIO))
@@ -27,11 +27,12 @@ import Logger (logStdOut)
 api' :: Proxy API
 api' = Proxy
 
-app :: Connection -> Wai.Application
-app connection = serveWithContext api' (genAuthServerContext config) $ api config connection
+app :: Config -> Connection -> Wai.Application
+app config connection = serveWithContext api' (genAuthServerContext config) $ api config connection
 
 main :: IO ()
 main = do
+  config <- getConfig
   let port = appPort config
   print $ "Starting server at " ++ show port
   connection <- initDb config
@@ -42,4 +43,4 @@ main = do
           Warp.setOnExceptionResponse response500 $
             Warp.setLogger logStdOut $
               Warp.defaultSettings
-  Warp.runSettings settings $ app connection
+  Warp.runSettings settings $ app config connection
