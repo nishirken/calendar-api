@@ -2,8 +2,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -18,11 +16,13 @@ import Data.ByteString.Lazy.UTF8 (fromString)
 import Database.PostgreSQL.Simple (Connection)
 import Db.Connection (initDb)
 import GHC.Generics
-import Network.HTTP.Types.Status (status500)
+import Network.HTTP.Types.Status (Status (..), status500)
 import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
 import Servant
 import Servant.API
+import Data.Aeson (toJSON)
+import Logger (logStdOut)
 
 api' :: Proxy API
 api' = Proxy
@@ -40,5 +40,6 @@ main = do
       settings =
         Warp.setPort (fromIntegral port) $
           Warp.setOnExceptionResponse response500 $
-            Warp.defaultSettings
+            Warp.setLogger logStdOut $
+              Warp.defaultSettings
   Warp.runSettings settings $ app connection

@@ -57,7 +57,7 @@ jobs:
 
       - name: "Build image"
         run: |
-          podman load < $(nix-build ci/dockerfile.nix)
+          $(nix-build ci/dockerfile.nix) | podman load
           podman push localhost/webapp:${TAG} registry.gitlab.com/nishirken/calendar-api:${TAG}
  
       - name: "Start image"

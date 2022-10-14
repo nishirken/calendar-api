@@ -20,6 +20,7 @@ executable calendar-api
         Controllers.Auth.Signin
         Controllers.Auth.JWT
         Controllers.Auth.AuthCheck
+        Logger
 
     default-language: Haskell2010
     build-depends:
@@ -46,4 +47,5 @@ executable calendar-api
         lens,
         bytestring,
         cookie,
-        binary
+        binary,
+        case-insensitive
