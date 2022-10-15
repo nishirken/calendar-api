@@ -12,6 +12,6 @@ initDb Config {..} =
       { connectHost = dbHost,
         connectPort = dbPort,
         connectUser = dbUser,
-        connectPassword = "12345",
+        connectPassword = dbPassword,
         connectDatabase = dbName
       }

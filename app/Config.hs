@@ -13,6 +13,7 @@ data Config = Config
     dbHost :: String,
     dbUser :: String,
     dbName :: String,
+    dbPassword :: String,
     authKey :: String
   }
   deriving (Eq, Show, FromJSON, Generic)
