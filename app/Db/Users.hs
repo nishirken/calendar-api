@@ -23,6 +23,9 @@ import Database.Beam.Backend.SQL.AST (Value (Value))
 import Database.Beam.Backend.SQL.Types (SqlSerial)
 import Database.Beam.Postgres
 
+maximumUserPasswordLength :: Word
+maximumUserPasswordLength = 70
+
 data UserT f = User
   { _userId :: Columnar f (SqlSerial Int32),
     _userEmail :: Columnar f Text,

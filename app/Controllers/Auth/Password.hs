@@ -7,12 +7,13 @@ import Data.Either (isLeft)
 import Data.Password.Bcrypt (Password, mkPassword)
 import Data.Password.Validate
 import Data.Text
+import Db (maximumUserPasswordLength)
 
 policy :: PasswordPolicy
 policy =
   PasswordPolicy
     { minimumLength = 5,
-      maximumLength = 70,
+      maximumLength = fromIntegral maximumUserPasswordLength,
       uppercaseChars = 1,
       lowercaseChars = 1,
       specialChars = 1,

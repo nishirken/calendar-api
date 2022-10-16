@@ -1,7 +1,11 @@
 name: "Deploy"
 
-on: workflow_dispatch
-
+on:
+  workflow_dispatch:
+    inputs:
+      migrations:
+        type: boolean
+    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,9 +24,12 @@ jobs:
           name: nishirken-calendar-api-ci
           authToken: '${{ secrets.CACHIX_TOKEN }}'
 
+      - name: "Build migrations"
+        if: "${{ github.event.inputs.migrations == 'true' }}"
+        run: nix build .#calendar-api:exe:calendar-api-migrations | jq '.[].outputs.out' 
+
       - name: "Build"
-        run: |
-          nix build . --json | jq '.[].outputs.out'
+        run: nix build . --json | jq '.[].outputs.out'
  
   deploy:
     needs: build
@@ -43,9 +50,10 @@ jobs:
         with:
            nix_path: nixpkgs=channel:nixos-22.05
            extra_nix_config: |
+             system-features = benchmark big-parallel nixos-test kvm
              substituters = https://hydra.iohk.io https://cache.nixos.org https://nix-community.cachix.org https://nishirken-calendar-api-ci.cachix.org
              trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= nishirken-calendar-api-ci.cachix.org-1:nOxlonOnNb+S7SEIouJXiOjRasq4opMzxSVNYB2HB7k=
-    
+ 
       - uses: redhat-actions/podman-login@v1.4
         with:
           username: nishirken
@@ -53,33 +61,36 @@ jobs:
           registry: registry.gitlab.com/nishirken/calendar-api
 
       - name: "Set env"
-        run: echo "TAG=$(date +%s)" >> $GITHUB_ENV # timestamp
+        run: |
+          echo "TAG_APP=app_$(date +%s)" >> $GITHUB_ENV # timestamp
+          echo "TAG_MIGRATIONS=migrations_$(date +%s)" >> $GITHUB_ENV # timestamp
+
+      - name: "Build migrations image"
+        if: "${{ github.event.inputs.migrations == 'true' }}"
+        run: |
+          podman load < $(nix-build ci/dockerfile-migrations.nix)
+          podman push localhost/webapp_migrations:${TAG_MIGRATIONS} registry.gitlab.com/nishirken/calendar-api:${TAG_MIGRATIONS}
 
       - name: "Build image"
         run: |
-          $(nix-build ci/dockerfile.nix) | podman load
-          podman push localhost/webapp:${TAG} registry.gitlab.com/nishirken/calendar-api:${TAG}
+          podman load < $(nix-build ci/dockerfile.nix)
+          podman push localhost/webapp:${TAG_APP} registry.gitlab.com/nishirken/calendar-api:${TAG_APP}
 
-      - name: "Gen env"
+      - name: "Gen env and config"
         env:
           KEY: ${{ secrets.AUTH_KEY }}
-          CMD: >
-            mkdir -p /var/calendar-api;
-            cd /var/calendar-api;
-            touch .env;
-            echo "POSTGRES_PASSWORD=$(cat config.json | jq '.dbPassword')" > .env;
-            echo "POSTGRES_USER=$(cat config.json | jq '.dbUser')" >> .env;
-            echo "POSTGRES_DB=$(cat config.json | jq '.dbName')" >> .env;
-            cat config.json | jq '.appKey |= "$KEY"'
+          PASS: ${{ secrets.DB_PASSWORD }}
+        run: ./.github/scripts/gen_env.sh
 
-        run: ssh -i ~/.ssh/gandi_key $USERNAME@$HOST $CMD
+      - name: "Deploy env migrations"
+        if: "${{ github.event.inputs.migrations == 'true' }}"
+        run: echo "COMPOSE_FILE=docker-compose-migrations.yaml" >> $GITHUB_ENV
+
+      - name: "Deploy env"
+        if: "${{ github.event.inputs.migrations == 'false' }}"
+        run: echo "COMPOSE_FILE=docker-compose.yaml" >> $GITHUB_ENV
  
       - name: "Start image"
         env:
-          CMD: <
-            podman login registry.gitlab.com/nishirken/calendar-api --username nishirken --password ${{ secrets.GANDI_PODMAN_TOKEN }};
-            TAG=$TAG podman-compose -f /var/calendar-api/docker-compose.yaml up -d --force-recreate
-        run: |
-          scp -i ~/.ssh/gandi_key ci/docker-compose.yaml $USERNAME@$HOST:/var/calendar-api/docker-compose.yaml
-          ssh -i ~/.ssh/gandi_key $USERNAME@$HOST $CMD
-          ssh -i ~/.ssh/gandi_key $USERNAME@$HOST 
+          TOKEN: ${{ secrets.GANDI_PODMAN_TOKEN }}
+        run: ./.github/scripts/start_image.sh
