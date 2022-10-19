@@ -1,9 +1,0 @@
-{
-  "appPort": 1111,
-  "authKey": "key",
-
-  "dbPort": 9999,
-  "dbName": "database",
-  "dbHost": "localhost",
-  "dbUser": "Iam"
-}

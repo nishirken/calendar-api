@@ -6,19 +6,22 @@ cradle:
     - path: "app/Config.hs"
       component: "calendar-api:exe:calendar-api"
 
+    - path: "app/Db.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Db/Scheme.hs"
+      component: "calendar-api:exe:calendar-api"
+
     - path: "app/Db/Users.hs"
       component: "calendar-api:exe:calendar-api"
 
     - path: "app/Db/Connection.hs"
       component: "calendar-api:exe:calendar-api"
 
-    - path: "app/Db.hs"
+    - path: "app/Controllers.hs"
       component: "calendar-api:exe:calendar-api"
 
     - path: "app/Controllers/User.hs"
-      component: "calendar-api:exe:calendar-api"
-
-    - path: "app/Controllers/Auth.hs"
       component: "calendar-api:exe:calendar-api"
 
     - path: "app/Controllers/Auth/Signup.hs"
@@ -33,8 +36,23 @@ cradle:
     - path: "app/Controllers/Auth/JWT.hs"
       component: "calendar-api:exe:calendar-api"
 
-    - path: "app/DefaultModuleName.hs"
-      component: "calendar-api:exe:calendar-api"
-
     - path: "app/Controllers/Auth/AuthCheck.hs"
       component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Logger.hs"
+      component: "calendar-api:exe:calendar-api"
+
+    - path: "app/Migrations.hs"
+      component: "calendar-api:exe:calendar-api-migrations"
+
+    - path: "app/Db/UsersMigration.hs"
+      component: "calendar-api:exe:calendar-api-migrations"
+
+    - path: "app/Db/Migrations.hs"
+      component: "calendar-api:exe:calendar-api-migrations"
+
+    - path: "app/Config.hs"
+      component: "calendar-api:exe:calendar-api-migrations"
+
+    - path: "app/Db/Connection.hs"
+      component: "calendar-api:exe:calendar-api-migrations"

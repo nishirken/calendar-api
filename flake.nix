@@ -25,6 +25,7 @@
                 };
                 buildInputs = with pkgs; [
                   haskellPackages.implicit-hie
+                  haskellPackages.cabal-fmt
                   zlib
                   postgresql_14
                 ];
@@ -42,6 +43,7 @@
     in flake // {
       # Built by `nix build .`
       defaultPackage = flake.packages."${packageName}:exe:${packageName}";
+      migrationsPackage = flake.packages."${packageName}:exe:${packageName}-migrations";
       inherit pkgs;
     });
 }

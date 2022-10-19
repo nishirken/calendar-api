@@ -14,7 +14,7 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Controllers
 import Data.ByteString.Lazy.UTF8 (fromString)
 import Database.PostgreSQL.Simple (Connection)
-import Db.Connection (initDb)
+import Db (initDb)
 import GHC.Generics
 import Network.HTTP.Types.Status (Status (..), status500)
 import qualified Network.Wai as Wai
@@ -32,15 +32,15 @@ app config connection = serveWithContext api' (genAuthServerContext config) $ ap
 
 main :: IO ()
 main = do
-  config <- getConfig
-  let port = appPort config
-  print $ "Starting server at " ++ show port
-  connection <- initDb config
-  let response500 :: SomeException -> Wai.Response
-      response500 err = Wai.responseLBS status500 [] (fromString $ "Something went wrong. " <> show err)
-      settings =
-        Warp.setPort (fromIntegral port) $
-          Warp.setOnExceptionResponse response500 $
-            Warp.setLogger logStdOut $
-              Warp.defaultSettings
-  Warp.runSettings settings $ app config connection
+  config <- getConfig 
+  let port = appPort config 
+  print $ "Starting server at " ++ show port 
+  connection <- initDb config 
+  let response500 :: SomeException -> Wai.Response 
+      response500 err = Wai.responseLBS status500 [] (fromString $ "Something went wrong. " <> show err) 
+      settings = 
+        Warp.setPort (fromIntegral port) $ 
+          Warp.setOnExceptionResponse response500 $ 
+            Warp.setLogger logStdOut $ 
+              Warp.defaultSettings 
+  Warp.runSettings settings $ app config connection 

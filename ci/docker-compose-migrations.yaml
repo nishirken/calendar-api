@@ -1,11 +1,18 @@
 version: "3.9"
 services:
+  webapp_migrations:
+    image: registry.gitlab.com/nishirken/calendar-api:${TAG_MIGRATIONS}
+    env_file: .env
+    depends_on:
+      - postgres
+
   webapp: 
     image: registry.gitlab.com/nishirken/calendar-api:${TAG_APP}
     ports:
       - 127.0.0.1:8081:8081
     env_file: .env
     depends_on:
+      - webapp_migrations
       - postgres
 
   postgres:
