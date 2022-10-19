@@ -1,21 +1,21 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Config where
 
+import Configuration.Dotenv (parseFile)
+import Control.Monad ((<=<))
+import Data.Either (fromLeft, fromRight)
+import Data.String.Interpolate (i)
 import Data.Word (Word16)
+import qualified Env
 import GHC.Generics (Generic)
 import System.Directory (getCurrentDirectory)
+import System.Environment (getEnvironment, getExecutablePath)
 import System.FilePath ((</>))
 import Text.Read (readEither)
-import Control.Monad ((<=<))
-import Configuration.Dotenv (parseFile)
-import Data.String.Interpolate (i)
-import System.Environment (getExecutablePath, getEnvironment)
-import qualified Env
-import Data.Either (fromRight, fromLeft)
 
 data Config = Config
   { appPort :: Word16,
@@ -56,32 +56,32 @@ readEither' rawVal = case readEither rawVal of
 
 getEnvVarsConfig :: IO Config
 getEnvVarsConfig = do
-  Env.parse (Env.header "env config") $ Config
-    <$> Env.var (readEither' <=< Env.nonempty) "APP_PORT" mempty
-    <*> Env.var (readEither' <=< Env.nonempty) "DB_PORT" mempty
-    <*> Env.var (Env.str <=< Env.nonempty) "DB_HOST" mempty
-    <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_USER" mempty
-    <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_DB" mempty
-    <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_PASSWORD" mempty
-    <*> Env.var (Env.str <=< Env.nonempty) "AUTH_KEY" mempty
-
+  Env.parse (Env.header "env config") $
+    Config
+      <$> Env.var (readEither' <=< Env.nonempty) "APP_PORT" mempty
+      <*> Env.var (readEither' <=< Env.nonempty) "DB_PORT" mempty
+      <*> Env.var (Env.str <=< Env.nonempty) "DB_HOST" mempty
+      <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_USER" mempty
+      <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_DB" mempty
+      <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_PASSWORD" mempty
+      <*> Env.var (Env.str <=< Env.nonempty) "AUTH_KEY" mempty
 
 getEnvFileConfig :: IO Config
 getEnvFileConfig = do
   rawVars <- parseFile ".env"
 
-  let
-    parseVar' :: Parse' a => String -> Either String a
-    parseVar' = parseVar rawVars
-    res :: Either String Config
-    res = Config
-      <$> (parseVar' "APP_PORT" :: Either String Word16)
-      <*> (parseVar' "DB_PORT" :: Either String Word16)
-      <*> (parseVar' "DB_HOST" :: Either String String)
-      <*> (parseVar' "POSTGRES_USER" :: Either String String)
-      <*> (parseVar' "POSTGRES_DB" :: Either String String)
-      <*> (parseVar' "POSTGRES_PASSWORD" :: Either String String)
-      <*> (parseVar' "AUTH_KEY" :: Either String String)
+  let parseVar' :: Parse' a => String -> Either String a
+      parseVar' = parseVar rawVars
+      res :: Either String Config
+      res =
+        Config
+          <$> (parseVar' "APP_PORT" :: Either String Word16)
+          <*> (parseVar' "DB_PORT" :: Either String Word16)
+          <*> (parseVar' "DB_HOST" :: Either String String)
+          <*> (parseVar' "POSTGRES_USER" :: Either String String)
+          <*> (parseVar' "POSTGRES_DB" :: Either String String)
+          <*> (parseVar' "POSTGRES_PASSWORD" :: Either String String)
+          <*> (parseVar' "AUTH_KEY" :: Either String String)
 
   case res of
     (Right config) -> pure config
@@ -91,5 +91,5 @@ getConfig :: IO Config
 getConfig = do
   envVars <- getEnvironment
   let isProd = fromRight False $ (parseVar envVars "PROD" :: Either String Bool)
-    
+
   if isProd then getEnvVarsConfig else getEnvFileConfig

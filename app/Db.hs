@@ -13,6 +13,5 @@ module Db
 where
 
 import Db.Connection
-import Db.Users
 import Db.Scheme
-
+import Db.Users

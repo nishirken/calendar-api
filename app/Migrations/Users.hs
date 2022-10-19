@@ -13,13 +13,13 @@
 
 module Migrations.Users where
 
-import Db
+import Data.Password.Bcrypt (PasswordHash)
+import Database.Beam
+import Database.Beam.Backend
 import Database.Beam.Migrate
 import Database.Beam.Postgres
-import Data.Password.Bcrypt (PasswordHash)
-import Database.Beam.Backend
-import Database.Beam
 import Database.Beam.Postgres.Syntax
+import Db
 
 instance BeamMigrateSqlBackend be => HasDefaultSqlDataType be UserPassword where
   defaultSqlDataType _ _ _ = varCharType (Just maximumUserPasswordLength) Nothing
@@ -27,8 +27,10 @@ instance BeamMigrateSqlBackend be => HasDefaultSqlDataType be UserPassword where
 passwordHashDataType :: DataType Postgres UserPassword
 passwordHashDataType = DataType (varCharType (Just maximumUserPasswordLength) Nothing)
 
-createTableUsers = createTable "users" $ User
-    { _userId = field "id" serial
-    , _userEmail = field "email" (varchar Nothing) notNull unique
-    , _userPassword = field "password" passwordHashDataType notNull
-    }
+createTableUsers =
+  createTable "users" $
+    User
+      { _userId = field "id" serial,
+        _userEmail = field "email" (varchar Nothing) notNull unique,
+        _userPassword = field "password" passwordHashDataType notNull
+      }
