@@ -48,6 +48,7 @@ executable calendar-api
         servant-server ^>=0.19,
         time,
         wai,
+        wai-cors,
         warp,
         postgresql-simple,
         beam-core,

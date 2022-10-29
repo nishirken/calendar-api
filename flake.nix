@@ -32,6 +32,10 @@
                 shellHook = ''
                   export PGDIR=".tmp/calendardb"
                   [ ! -d $PGDIR ] && pg_ctl initdb -D $PGDIR
+                  if [ ! -f .env ]
+                  then
+                    export $(cat .env | xargs)
+                  fi
                 '';
                 withHoogle = true;
               };

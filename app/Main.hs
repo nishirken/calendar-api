@@ -21,8 +21,10 @@ import Logger (logStdOut)
 import Network.HTTP.Types.Status (Status (..), status500)
 import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
+import Network.Wai.Middleware.Cors (cors, simpleCorsResourcePolicy, CorsResourcePolicy (..), simpleCors)
 import Servant
 import Servant.API
+import Network.HTTP.Types (methodGet, methodPost, methodPut, methodDelete)
 
 api' :: Proxy API
 api' = Proxy
@@ -43,4 +45,9 @@ main = do
           Warp.setOnExceptionResponse response500 $
             Warp.setLogger logStdOut $
               Warp.defaultSettings
-  Warp.runSettings settings $ app config connection
+      corsMiddleware = cors $ \_ -> Just $ simpleCorsResourcePolicy
+        { corsMethods = [ methodGet, methodPost, methodPut, methodDelete ]
+        , corsOrigins = Just (["http://127.0.0.1:8080"], True)
+        , corsRequestHeaders = ["Content-Type"]
+        }
+  Warp.runSettings settings $ corsMiddleware $ app config connection
