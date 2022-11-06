@@ -18,13 +18,13 @@ import Database.PostgreSQL.Simple (Connection)
 import Db (initDb)
 import GHC.Generics
 import Logger (logStdOut)
+import Network.HTTP.Types (methodDelete, methodGet, methodPost, methodPut)
 import Network.HTTP.Types.Status (Status (..), status500)
 import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
-import Network.Wai.Middleware.Cors (cors, simpleCorsResourcePolicy, CorsResourcePolicy (..), simpleCors)
+import Network.Wai.Middleware.Cors (CorsResourcePolicy (..), cors, simpleCors, simpleCorsResourcePolicy)
 import Servant
 import Servant.API
-import Network.HTTP.Types (methodGet, methodPost, methodPut, methodDelete)
 
 api' :: Proxy API
 api' = Proxy
@@ -45,9 +45,11 @@ main = do
           Warp.setOnExceptionResponse response500 $
             Warp.setLogger logStdOut $
               Warp.defaultSettings
-      corsMiddleware = cors $ \_ -> Just $ simpleCorsResourcePolicy
-        { corsMethods = [ methodGet, methodPost, methodPut, methodDelete ]
-        , corsOrigins = Just (["http://127.0.0.1:8080"], True)
-        , corsRequestHeaders = ["Content-Type"]
-        }
+      corsMiddleware = cors $ \_ ->
+        Just $
+          simpleCorsResourcePolicy
+            { corsMethods = [methodGet, methodPost, methodPut, methodDelete],
+              corsOrigins = Just (["http://localhost:8080", "http://127.0.0.1:8080"], True),
+              corsRequestHeaders = ["Content-Type"]
+            }
   Warp.runSettings settings $ corsMiddleware $ app config connection
