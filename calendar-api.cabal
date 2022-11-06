@@ -42,6 +42,7 @@ executable calendar-api
         Controllers.Auth.JWT
         Controllers.Auth.AuthCheck
         Logger
+        ResponseError
 
     build-depends:
         servant ^>=0.19,

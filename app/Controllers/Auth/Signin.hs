@@ -19,6 +19,7 @@ import Data.Text.Encoding (encodeUtf8)
 import Database.Beam.Postgres (Connection)
 import qualified Db
 import GHC.Generics (Generic)
+import ResponseError (ToServerError (..), mkServerError)
 import Servant
 import Servant.API
 import Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteStrict)
@@ -37,11 +38,18 @@ data SigninRequestBody = SigninRequestBody
 
 instance FromJSON SigninRequestBody
 
+data SigninError = AuthCredsInvalid deriving (Eq, Show)
+
+instance ToServerError SigninError where
+  toErrorCode AuthCredsInvalid = "CREDENTIALS_INVALID"
+  toErrorBody AuthCredsInvalid = Nothing
+  toBaseError AuthCredsInvalid = err400
+
 -- 1) Checks if email exists. If not, throws 400
 -- 2) Checks if password valid. If not, throws 400
 signin :: Config -> Connection -> SigninRequestBody -> Handler SigninResponse
 signin config conn SigninRequestBody {..} = do
-  let err = throwError $ err400 {errBody = "Email or password are invalid"}
+  let err = throwError $ mkServerError AuthCredsInvalid
       check Password.PasswordCheckSuccess = True
       check _ = False
   user <- liftIO $ Db.getUserByEmail conn email

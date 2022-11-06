@@ -16,6 +16,7 @@ import Database.Beam.Backend (SqlSerial (unSerial))
 import Database.PostgreSQL.Simple (Connection)
 import qualified Db
 import GHC.Generics
+import ResponseError
 import Servant
 import Servant.API
 
@@ -34,4 +35,4 @@ getUser config connection userId = do
   user <- liftIO $ Db.getUserById connection userId
   case user of
     Just user' -> pure $ UserResponse (unSerial . Db._userId $ user') (Db._userEmail user')
-    Nothing -> throwError $ err404
+    Nothing -> throwError error404
