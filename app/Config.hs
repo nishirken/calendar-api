@@ -24,7 +24,8 @@ data Config = Config
     dbUser :: String,
     dbName :: String,
     dbPassword :: String,
-    authKey :: String
+    authKey :: String,
+    isProd :: Bool
   }
   deriving (Eq, Show)
 
@@ -54,8 +55,8 @@ readEither' rawVal = case readEither rawVal of
   (Right val) -> Right val
   (Left err) -> Left $ Env.UnreadError err
 
-getEnvVarsConfig :: IO Config
-getEnvVarsConfig = do
+getEnvVarsConfig :: Bool -> IO Config
+getEnvVarsConfig isProd = do
   Env.parse (Env.header "env config") $
     Config
       <$> Env.var (readEither' <=< Env.nonempty) "APP_PORT" mempty
@@ -65,9 +66,10 @@ getEnvVarsConfig = do
       <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_DB" mempty
       <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_PASSWORD" mempty
       <*> Env.var (Env.str <=< Env.nonempty) "AUTH_KEY" mempty
+      <*> pure isProd
 
-getEnvFileConfig :: IO Config
-getEnvFileConfig = do
+getEnvFileConfig :: Bool -> IO Config
+getEnvFileConfig isProd = do
   rawVars <- parseFile ".env"
 
   let parseVar' :: Parse' a => String -> Either String a
@@ -82,6 +84,7 @@ getEnvFileConfig = do
           <*> (parseVar' "POSTGRES_DB" :: Either String String)
           <*> (parseVar' "POSTGRES_PASSWORD" :: Either String String)
           <*> (parseVar' "AUTH_KEY" :: Either String String)
+          <*> Right isProd 
 
   case res of
     (Right config) -> pure config
@@ -92,4 +95,4 @@ getConfig = do
   envVars <- getEnvironment
   let isProd = fromRight False $ (parseVar envVars "PROD" :: Either String Bool)
 
-  if isProd then getEnvVarsConfig else getEnvFileConfig
+  if isProd then getEnvVarsConfig isProd else getEnvFileConfig isProd

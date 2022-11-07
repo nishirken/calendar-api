@@ -7,7 +7,7 @@
 
 module Controllers.Auth.Signin where
 
-import Config (Config (authKey))
+import Config (Config (authKey, isProd))
 import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Controllers.Auth.JWT (encodeJWT, expirationDays)
@@ -22,7 +22,7 @@ import GHC.Generics (Generic)
 import ResponseError (ToServerError (..), mkServerError)
 import Servant
 import Servant.API
-import Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteStrict)
+import Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteStrict, sameSiteNone)
 
 type SigninHeaders = Headers '[Header "Set-Cookie" SetCookie]
 
@@ -63,9 +63,10 @@ signin config conn SigninRequestBody {..} = do
               { setCookieName = "jwt",
                 setCookieValue = (encodeUtf8 jwt),
                 setCookieMaxAge = Just $ realToFrac expirationDays,
-                setCookieSecure = True,
+                setCookieSecure = isProd config,
                 setCookieHttpOnly = True,
-                setCookieSameSite = Just sameSiteStrict
+                setCookieSameSite = Just sameSiteStrict,
+                setCookiePath = Just "/"
               }
       pure $ addHeader jwtCookie ()
     Nothing -> err
