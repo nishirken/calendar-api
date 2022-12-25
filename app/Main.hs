@@ -13,6 +13,7 @@ import Control.Exception (SomeException (SomeException), catches, try)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Controllers
 import Data.Aeson (toJSON)
+import qualified Data.ByteString.UTF8 as BS
 import Data.ByteString.Lazy.UTF8 (fromString)
 import Database.PostgreSQL.Simple (Connection)
 import Db (initDb)
@@ -49,7 +50,7 @@ main = do
         Just $
           simpleCorsResourcePolicy
             { corsMethods = [methodGet, methodPost, methodPut, methodDelete],
-              corsOrigins = Just (["http://localhost:8080", "http://127.0.0.1:8080"], True),
+              corsOrigins = Just ([BS.fromString $ appHost config], True),
               corsRequestHeaders = ["Content-Type"]
             }
   Warp.runSettings settings $ corsMiddleware $ app config connection
