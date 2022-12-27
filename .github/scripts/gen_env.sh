@@ -10,5 +10,6 @@ ssh -i ~/.ssh/gandi_key $USERNAME@$HOST "
   echo DB_PORT=5555 >> .env
   echo DB_HOST=postgres >> .env
   echo APP_PORT=8081 >> .env
+  echo APP_ORIGIN=https://46.226.104.150 >> .env
 "
 

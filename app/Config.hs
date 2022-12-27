@@ -19,6 +19,7 @@ import Text.Read (readEither)
 
 data Config = Config
   { appPort :: Word16,
+    appOrigin :: String,
     dbPort :: Word16,
     dbHost :: String,
     dbUser :: String,
@@ -59,6 +60,7 @@ getEnvVarsConfig = do
   Env.parse (Env.header "env config") $
     Config
       <$> Env.var (readEither' <=< Env.nonempty) "APP_PORT" mempty
+      <*> Env.var (Env.str <=< Env.nonempty) "APP_ORIGIN" mempty
       <*> Env.var (readEither' <=< Env.nonempty) "DB_PORT" mempty
       <*> Env.var (Env.str <=< Env.nonempty) "DB_HOST" mempty
       <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_USER" mempty
@@ -76,6 +78,7 @@ getEnvFileConfig = do
       res =
         Config
           <$> (parseVar' "APP_PORT" :: Either String Word16)
+          <*> (parseVar' "APP_ORIGIN" :: Either String String)
           <*> (parseVar' "DB_PORT" :: Either String Word16)
           <*> (parseVar' "DB_HOST" :: Either String String)
           <*> (parseVar' "POSTGRES_USER" :: Either String String)
