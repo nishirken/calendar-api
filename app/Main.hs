@@ -50,7 +50,7 @@ main = do
         Just $
           simpleCorsResourcePolicy
             { corsMethods = [methodGet, methodPost, methodPut, methodDelete],
-              corsOrigins = Just ([BS.fromString $ appHost config], True),
+              corsOrigins = Just ([BS.fromString $ appOrigin config], True),
               corsRequestHeaders = ["Content-Type"]
             }
   Warp.runSettings settings $ corsMiddleware $ app config connection
