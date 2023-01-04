@@ -19,6 +19,6 @@ main :: IO ()
 main = do
   config <- getConfig ".env"
   let port = appPort config
-  print $ "Starting server at " ++ show port
+  print $ "Starting server at " ++ port
   connection <- connectDb config
   Warp.runSettings (settings config) $ app config connection
