@@ -5,8 +5,8 @@ module Db.Connection where
 import Config
 import Database.Beam.Postgres
 
-initDb :: Config -> IO Connection
-initDb config@Config {..} = do
+connectDb :: Config -> IO Connection
+connectDb config@Config {..} = do
   connect $
     ConnectInfo
       { connectHost = dbHost,

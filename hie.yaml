@@ -3,10 +3,10 @@ cradle:
     - path: "app/Main.hs"
       component: "calendar-api:exe:calendar-api"
 
-    - path: "app/Config.hs"
+    - path: "app/Db.hs"
       component: "calendar-api:exe:calendar-api"
 
-    - path: "app/Db.hs"
+    - path: "app/Db/Connection.hs"
       component: "calendar-api:exe:calendar-api"
 
     - path: "app/Db/Scheme.hs"
@@ -15,7 +15,7 @@ cradle:
     - path: "app/Db/Users.hs"
       component: "calendar-api:exe:calendar-api"
 
-    - path: "app/Db/Connection.hs"
+    - path: "app/Config.hs"
       component: "calendar-api:exe:calendar-api"
 
     - path: "app/Controllers.hs"
@@ -42,17 +42,14 @@ cradle:
     - path: "app/Logger.hs"
       component: "calendar-api:exe:calendar-api"
 
-    - path: "app/Migrations.hs"
-      component: "calendar-api:exe:calendar-api-migrations"
+    - path: "app/ResponseError.hs"
+      component: "calendar-api:exe:calendar-api"
 
-    - path: "app/Db/UsersMigration.hs"
-      component: "calendar-api:exe:calendar-api-migrations"
+    - path: "app/App.hs"
+      component: "calendar-api:exe:calendar-api"
 
-    - path: "app/Db/Migrations.hs"
-      component: "calendar-api:exe:calendar-api-migrations"
+    - path: "tests"
+      component: "calendar-api:test:calendar-api-test"
 
-    - path: "app/Config.hs"
-      component: "calendar-api:exe:calendar-api-migrations"
-
-    - path: "app/Db/Connection.hs"
-      component: "calendar-api:exe:calendar-api-migrations"
+    - path: "app"
+      component: "calendar-api:test:calendar-api-test"

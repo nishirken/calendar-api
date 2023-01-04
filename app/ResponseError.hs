@@ -2,17 +2,18 @@
 
 module ResponseError (mkServerError, ResponseError, ToServerError (..), NotFound, error404) where
 
-import Servant (ServerError(..), err404)
-import Data.Aeson (ToJSON, encode, toJSON, object, (.=), Value)
+import Data.Aeson (ToJSON, Value, encode, object, toJSON, (.=))
 import Network.HTTP.Types (hContentType)
+import Servant (ServerError (..), err404)
 
-data ToJSON a => ResponseError a = ResponseError
-  { _code :: !String, _data :: !(Maybe a) } deriving (Eq, Show)
+data ResponseError a = ResponseError
+  {_code :: !String, _data :: !(Maybe a)}
+  deriving (Eq, Show)
 
 instance ToJSON a => ToJSON (ResponseError a) where
-  toJSON (ResponseError msg err) = object $ [ "code" .= msg] <> dataField err
+  toJSON (ResponseError msg err) = object $ ["code" .= msg] <> dataField err
     where
-      dataField (Just err) = [ "data" .= toJSON err ]
+      dataField (Just err) = ["data" .= toJSON err]
       dataField Nothing = []
 
 class ToServerError a where
@@ -22,10 +23,11 @@ class ToServerError a where
 
 -- puts ToJSON body in a Servant ServerError
 mkServerError :: ToServerError a => a -> ServerError
-mkServerError err = (toBaseError err)
-  { errBody = (encode . toJSON) $ ResponseError (toErrorCode err) (toErrorBody err)
-  , errHeaders = [(hContentType, "application/json")]
-  }
+mkServerError err =
+  (toBaseError err)
+    { errBody = (encode . toJSON) $ ResponseError (toErrorCode err) (toErrorBody err),
+      errHeaders = [(hContentType, "application/json")]
+    }
 
 data NotFound = NotFound
 

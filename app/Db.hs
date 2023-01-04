@@ -5,7 +5,7 @@ module Db
     UserPassword,
     maximumUserPasswordLength,
     getUserId,
-    initDb,
+    connectDb,
     getUserById,
     getUserByEmail,
     createUser,

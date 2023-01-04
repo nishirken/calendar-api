@@ -5,10 +5,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module Db.Scheme where
 
@@ -23,7 +20,7 @@ import Database.Beam.Postgres.Full (insertReturning)
 import Database.Beam.Query
 import Db.Users
 
-data CalendarDb f = CalendarDb
+newtype CalendarDb f = CalendarDb
   { _calendarUsers :: f (TableEntity UserT)
   }
   deriving (Generic, Database Postgres)
@@ -37,7 +34,7 @@ getUserById conn userId =
     runSelectReturningOne $
       select $
         filter_
-          (\user -> _userId user ==. (val_ $ SqlSerial userId))
+          (\user -> _userId user ==. val_ (SqlSerial userId))
           (all_ (_calendarUsers calendarDb))
 
 getUserByEmail :: Connection -> Text -> IO (Maybe User)
@@ -58,5 +55,5 @@ createUser conn email password = do
         insert (_calendarUsers calendarDb) $
           insertExpressions ([User default_ (val_ email) (val_ hashedPassword)] :: [UserT (QExpr Postgres a)])
   if length res == 1
-    then pure $ res !! 0
-    else (error "No user has been returned")
+    then pure $ head res
+    else error "No user has been returned"

@@ -25,7 +25,7 @@ encodeJWT secret userId = do
         JOSEHeader
           { typ = Just "jwt",
             cty = Nothing,
-            alg = Just $ HS256,
+            alg = Just HS256,
             kid = Nothing
           }
       claims =
@@ -40,9 +40,9 @@ encodeJWT secret userId = do
   pure $ encodeSigned (encodeSigner secret) header claims
 
 encodeSigner :: Text -> EncodeSigner
-encodeSigner secret = hmacSecret secret
+encodeSigner = hmacSecret
 
 verifyJWT :: Text -> Text -> Maybe (JWT VerifiedJWT)
-verifyJWT secret rawJWT = decodeAndVerifySignature signer rawJWT
+verifyJWT secret = decodeAndVerifySignature signer
   where
     signer = (toVerify . encodeSigner) secret

@@ -1,9 +1,5 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -35,4 +31,4 @@ api :: Config -> Connection -> Server API
 api config connection = publicAPI :<|> privateAPI
   where
     publicAPI = signup config connection :<|> signin config connection
-    privateAPI userId = getUser config connection userId
+    privateAPI = getUser config connection
