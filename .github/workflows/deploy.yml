@@ -26,10 +26,10 @@ jobs:
 
       - name: "Build migrations"
         if: "${{ github.event.inputs.migrations == 'true' }}"
-        run: nix build .#calendar-api:exe:calendar-api-migrations | jq '.[].outputs.out' 
+        run: nix build .#calendar-api:exe:calendar-api-migrations --print-out-paths
 
       - name: "Build"
-        run: nix build . --json | jq '.[].outputs.out'
+        run: nix build . --print-out-paths
  
   deploy:
     needs: build
