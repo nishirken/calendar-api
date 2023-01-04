@@ -22,7 +22,7 @@ import GHC.Generics (Generic)
 import ResponseError (ToServerError (..), mkServerError)
 import Servant
 import Servant.API
-import Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteStrict)
+import Web.Cookie (SetCookie (..), defaultSetCookie, sameSiteNone)
 
 type SigninHeaders = Headers '[Header "Set-Cookie" SetCookie]
 
@@ -65,7 +65,8 @@ signin config conn SigninRequestBody {..} = do
                 setCookieMaxAge = Just $ realToFrac expirationDays,
                 setCookieSecure = True,
                 setCookieHttpOnly = True,
-                setCookieSameSite = Just sameSiteStrict
+                setCookieSameSite = Just sameSiteNone,
+                setCookiePath = Just "/"
               }
       pure $ addHeader jwtCookie ()
     Nothing -> err
