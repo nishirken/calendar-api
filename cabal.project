@@ -1,0 +1,3 @@
+packages: calendar-api.cabal
+-- allow text 2.0 to be used
+allow-newer: beam-postgres:text

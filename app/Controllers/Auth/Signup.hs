@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -71,8 +70,8 @@ signup :: Config -> Connection -> SignupRequestBody -> Handler UserResponse
 signup config connection SignupRequestBody {..} = do
   validEmail <-
     either
-      (\reason -> throwError $ mkServerError $ EmailInvalid reason)
-      (\email' -> pure email')
+      (throwError . mkServerError . EmailInvalid)
+      pure
       $ EmailValidate.validate
       $ (BS.fromString . unpack) email
 

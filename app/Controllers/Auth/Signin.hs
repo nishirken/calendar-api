@@ -1,17 +1,16 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Controllers.Auth.Signin where
 
 import Config (Config (authKey))
-import Control.Monad (when)
+import Control.Monad (unless)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Controllers.Auth.JWT (encodeJWT, expirationDays)
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Maybe (isJust, isNothing)
 import qualified Data.Password.Bcrypt as Password
 import Data.Text (Text, pack)
@@ -36,6 +35,8 @@ data SigninRequestBody = SigninRequestBody
   }
   deriving (Eq, Show, Generic)
 
+instance ToJSON SigninRequestBody
+
 instance FromJSON SigninRequestBody
 
 data SigninError = AuthCredsInvalid deriving (Eq, Show)
@@ -56,12 +57,12 @@ signin config conn SigninRequestBody {..} = do
   case user of
     (Just user') -> do
       let isPasswordValid = check $ Password.checkPassword (Password.mkPassword password) (Db._userPassword user')
-      when (not isPasswordValid) err
+      unless isPasswordValid err
       jwt <- liftIO $ encodeJWT (pack $ authKey config) (Db.getUserId user')
       let jwtCookie =
             defaultSetCookie
               { setCookieName = "jwt",
-                setCookieValue = (encodeUtf8 jwt),
+                setCookieValue = encodeUtf8 jwt,
                 setCookieMaxAge = Just $ realToFrac expirationDays,
                 setCookieSecure = True,
                 setCookieHttpOnly = True,

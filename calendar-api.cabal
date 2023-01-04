@@ -1,76 +1,97 @@
-cabal-version:      3.6
+cabal-version:      3.4
+
+-- version 3.6+ doesn't supported by cabal-fmt
 name:               calendar-api
 version:            0.1.0.0
 maintainer:         dmitrii.sk@gmail.com
 author:             Dmitrii Skurihin
 extra-source-files: CHANGELOG.md
 
-common deps 
-    default-language: Haskell2010
-    build-depends:
-        base ^>=4.16.3.0,
-        postgresql-simple,
-        beam-core,
-        beam-postgres,
-        beam-migrate,
-        aeson,
-        password,
-        text,
-        directory,
-        filepath,
-        dotenv,
-        envparse,
-        string-interpolate,
+common shared
+  default-language: Haskell2010
+  build-depends:
+    , aeson
+    , base
+    , beam-core
+    , beam-migrate
+    , beam-postgres
+    , binary
+    , bytestring
+    , case-insensitive
+    , containers
+    , cookie
+    , directory
+    , dotenv
+    , email-validate
+    , envparse
+    , filepath
+    , http-types
+    , jwt
+    , lens
+    , password
+    , postgresql-simple
+    , servant
+    , servant-server
+    , string-interpolate
+    , text
+    , time
+    , utf8-string
+    , uuid-types
+    , wai
+    , wai-cors
+    , warp
 
-    other-modules:
-        Db
-        Db.Connection
-        Db.Scheme
-        Db.Users
-        Config
+  other-modules:
+    App
+    Config
+    Controllers
+    Controllers.Auth.AuthCheck
+    Controllers.Auth.JWT
+    Controllers.Auth.Password
+    Controllers.Auth.Signin
+    Controllers.Auth.Signup
+    Controllers.User
+    Db
+    Db.Connection
+    Db.Scheme
+    Db.Users
+    Logger
+    ResponseError
+    Settings
+
+common migrations-deps
+  other-modules:
+    Migrations.Migrate
+    Migrations.Users
 
 executable calendar-api
-    import: deps
-    main-is:          Main.hs
-    hs-source-dirs:   app
-    other-modules:
-        Controllers
-        Controllers.User
-        Controllers.Auth.Signup
-        Controllers.Auth.Password
-        Controllers.Auth.Signin
-        Controllers.Auth.JWT
-        Controllers.Auth.AuthCheck
-        Logger
-        ResponseError
-
-    build-depends:
-        servant ^>=0.19,
-        servant-server ^>=0.19,
-        time,
-        wai,
-        wai-cors,
-        warp,
-        postgresql-simple,
-        beam-core,
-        beam-postgres,
-        utf8-string,
-        containers,
-        email-validate,
-        http-types,
-        uuid-types,
-        jwt ^>=0.11.0,
-        lens,
-        bytestring,
-        cookie,
-        binary,
-        case-insensitive
+  import:         shared
+  main-is:        Main.hs
+  hs-source-dirs: app
 
 executable calendar-api-migrations
-    import: deps
-    main-is:          Migrations.hs
-    hs-source-dirs:   app
-    build-depends:
-        beam-migrate 
-    other-modules: 
-        Migrations.Users
+  import:         shared, migrations-deps
+  main-is:        Migrations.hs
+  hs-source-dirs: app
+  build-depends:  beam-migrate
+
+test-suite calendar-api-tests
+  import:         shared, migrations-deps
+  type:           exitcode-stdio-1.0
+  main-is:        Spec.hs
+  hs-source-dirs: tests app
+  ghc-options:    -main-is Spec
+  build-depends:
+    , hspec
+    , hspec-wai
+    , hspec-wai-json
+    , http-client
+    , jwt
+    , QuickCheck
+    , servant-client
+    , shelly
+    , time
+
+  other-modules:
+    SigninSpec
+    Utils

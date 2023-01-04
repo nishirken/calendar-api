@@ -1,4 +1,9 @@
 {
+  nixConfig = {
+    extra-substituters = "https://cache.iog.io";
+    extra-trusted-public-keys = "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=";
+  };  
+
   inputs = {
     haskellNix.url = "github:input-output-hk/haskell.nix";
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
@@ -15,13 +20,13 @@
           ${packageName} =
             final.haskell-nix.cabalProject' {
               src = ./.;
-              compiler-nix-name = "ghc924";
+              compiler-nix-name = "ghc925";
               shell = {
                 tools = {
                   cabal = "3.8.1.0";
-                  hlint = "latest";
-                  haskell-language-server = "latest";
-                  ormolu = "0.5.0.1";
+                  hlint = "3.5";
+                  # haskell-language-server = {};
+                  ormolu = "0.5.1.0";
                 };
                 buildInputs = with pkgs; [
                   haskellPackages.implicit-hie
@@ -29,14 +34,6 @@
                   zlib
                   postgresql_14
                 ];
-                shellHook = ''
-                  export PGDIR=".tmp/calendardb"
-                  [ ! -d $PGDIR ] && pg_ctl initdb -D $PGDIR
-                  if [ ! -f .env ]
-                  then
-                    export $(cat .env | xargs)
-                  fi
-                '';
                 withHoogle = true;
               };
             };

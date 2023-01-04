@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Config where
@@ -68,9 +67,9 @@ getEnvVarsConfig = do
       <*> Env.var (Env.str <=< Env.nonempty) "POSTGRES_PASSWORD" mempty
       <*> Env.var (Env.str <=< Env.nonempty) "AUTH_KEY" mempty
 
-getEnvFileConfig :: IO Config
-getEnvFileConfig = do
-  rawVars <- parseFile ".env"
+getEnvFileConfig :: FilePath -> IO Config
+getEnvFileConfig envFileName = do
+  rawVars <- parseFile envFileName
 
   let parseVar' :: Parse' a => String -> Either String a
       parseVar' = parseVar rawVars
@@ -90,9 +89,9 @@ getEnvFileConfig = do
     (Right config) -> pure config
     (Left err) -> error ("Failed to parse config. " <> err)
 
-getConfig :: IO Config
-getConfig = do
+getConfig :: FilePath -> IO Config
+getConfig envFileName = do
   envVars <- getEnvironment
-  let isProd = fromRight False $ (parseVar envVars "PROD" :: Either String Bool)
+  let isProd = fromRight False (parseVar envVars "PROD" :: Either String Bool)
 
-  if isProd then getEnvVarsConfig else getEnvFileConfig
+  if isProd then getEnvVarsConfig else getEnvFileConfig envFileName
