@@ -60,6 +60,10 @@ jobs:
           password: ${{ secrets.GITLAB_REGISTRY_TOKEN }}
           registry: registry.gitlab.com/nishirken/calendar-api
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: "Set env"
         run: |
           echo "TAG_APP=app_$(date +%s)" >> $GITHUB_ENV # timestamp
@@ -93,4 +97,4 @@ jobs:
       - name: "Start image"
         env:
           TOKEN: ${{ secrets.GANDI_PODMAN_TOKEN }}
-        run: ./.github/scripts/start_image.sh
+        run: node .github/scripts/start_image.js

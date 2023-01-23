@@ -18,7 +18,9 @@ import Servant
 import Servant.API
 import Servant.Server.Experimental.Auth (AuthHandler)
 
-type PublicAPI = "auth" :> (SignupAPI :<|> SigninAPI)
+type AuthAPI = "auth" :> (SignupAPI :<|> SigninAPI)
+
+type PublicAPI = AuthAPI
 
 type PrivateAPI = AuthProtect "cookie-auth" :> UserAPI
 
