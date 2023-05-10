@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: cachix/install-nix-action@v18
+      - uses: cachix/install-nix-action@v20
         with:
           nix_path: nixpkgs=channel:nixos-22.11
           extra_nix_config: |
@@ -46,7 +46,7 @@ jobs:
          name: "gandi_key"
          known_hosts: ${{ secrets.GANDI_CALENDAR_KNOWN_HOSTS }}
  
-      - uses: cachix/install-nix-action@v18
+      - uses: cachix/install-nix-action@v20
         with:
            nix_path: nixpkgs=channel:nixos-22.11
            extra_nix_config: |
